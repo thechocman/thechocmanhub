@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheChocman Board</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        #contenedor {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background-color: white;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+        .texto {
+            position: absolute;
+            font-family: monospace;
+            font-size: 16px;
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+        button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="activar">Agregar Texto en Clic</button>
+    <div id="contenedor">
+        <canvas id="pizarra"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("pizarra");
+        const ctx = canvas.getContext("2d");
+        const contenedor = document.getElementById("contenedor");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let dibujando = false;
+        let modoEscritura = false;
+
+        // Activar modo escritura
+        document.getElementById("activar").addEventListener("click", () => {
+            modoEscritura = true;
+        });
+
+        // Dibujo en la pizarra sin offset
+        canvas.addEventListener("mousedown", (event) => {
+            dibujando = true;
+            ctx.beginPath();
+            ctx.moveTo(event.clientX, event.clientY);
+        });
+
+        canvas.addEventListener("mouseup", () => { dibujando = false; });
+
+        canvas.addEventListener("mousemove", (event) => {
+            if (!dibujando || modoEscritura) return;
+
+            ctx.lineTo(event.clientX, event.clientY);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+
+        // Generar campo de texto en el clic sin offset
+        contenedor.addEventListener("click", (event) => {
+            if (!modoEscritura) return;
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.className = "texto";
+            input.style.left = event.clientX + "px";
+            input.style.top = event.clientY + "px";
+            document.body.appendChild(input);
+            input.focus();
+
+            modoEscritura = false;
+        });
+
+    </script>
+
+</body>
+</html>

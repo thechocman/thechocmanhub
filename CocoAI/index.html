@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CocoAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: #f0f0f0;
+      overflow-x: hidden;
+    }
+    header {
+      background: white;
+      padding: 1em;
+      text-align: left;
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+    }
+    header h2 {
+      margin: 0;
+      font-weight: 400;
+      font-size: 1em;
+      color: #666;
+    }
+    .container {
+      padding: 1em;
+    }
+    #response {
+      font-weight: 300;
+      color: black;
+      margin-bottom: 0.5em;
+      transition: margin 0.3s ease;
+    }
+    #inputContainer {
+      display: flex;
+      align-items: center;
+      transition: margin-top 0.3s ease;
+    }
+    #userInput {
+      border: none;
+      border-bottom: 1px solid #333;
+      font-size: 1em;
+      padding: 0.5em;
+      background: none;
+      flex: 1;
+    }
+    #sendBtn {
+      margin-left: 0.5em;
+      padding: 0.5em 1em;
+      cursor: pointer;
+    }
+    #catImages {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    #catImages img {
+      height: 150px;
+      opacity: 1;
+      transition: opacity 1s ease-out;
+    }
+    .background-img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+    }
+    #footerText {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      color: black;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CocoAI</h1>
+    <h2>Off-Line</h2>
+  </header>
+  <img src="https://qu.ax/Jhdak.jpg" alt="background" class="background-img" />
+  <div class="container">
+    <div id="response">CocoAI responderá ciertas dudas… :-)</div>
+    <div id="inputContainer">
+      <input type="text" id="userInput" placeholder="Escribe aquí..." />
+      <button id="sendBtn">Enviar</button>
+    </div>
+    <div id="catImages"></div>
+  </div>
+  <div id="footerText">Lista de comandos pronto ;-)</div>
+  <script>
+    const responseEl = document.getElementById("response");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const catContainer = document.getElementById("catImages");
+    let customRules = {};
+    let userName = "usuario";
+    let afterSwear = false;
+    let typingInterval;
+
+    const saludoOpciones = ["¡Hola! Me alegra verte :-)", "Hola!", "Holii", "Holiii", "Holi :-)", "Holaa :-)", "Hola uwu."];
+    const graciasOpciones = ["Estoy aquí para tí ;-)", "De nada :-)", "Gracias a tí :-D", "Lo que desees!"];
+
+    const palabrasGato = ["gatito", "gato", "cat", "kitty", "kitten", "miau", "michito", "minino", "felino", "meow", "nyan"];
+
+    const mostrarRespuesta = (text) => {
+      if (typingInterval) {
+        clearInterval(typingInterval);
+        responseEl.innerHTML = "";  // Borra la respuesta anterior
+      }
+
+      let i = 0;
+      typingInterval = setInterval(() => {
+        responseEl.innerHTML += text[i];
+        if (responseEl.getBoundingClientRect().bottom > input.getBoundingClientRect().top) {
+          document.getElementById("inputContainer").style.marginTop = "2em";
+        }
+        i++;
+        if (i >= text.length) clearInterval(typingInterval);
+      }, 30);
+    };
+
+    const obtenerImagenesGatitos = () => {
+      return [
+        "https://tse4.mm.bing.net/th?id=OIP.fT-vvwJLNu7_F8ecncFtaQHaE_&pid=Api",
+        "https://tse4.mm.bing.net/th?id=OIP.R3U06JEJvoROC7iFM1AnzAHaEK&pid=Api",
+        "https://tse3.mm.bing.net/th?id=OIP.Cvl8lY21mbvW9CgjkVdPJQHaHa&pid=Api",
+        "https://tse4.mm.bing.net/th?id=OIP.IMk_fZeOo1xuxVmC7xgyUQHaG7&pid=Api"
+      ];
+    };
+
+    const mostrarImagenesGatitos = () => {
+      const urls = obtenerImagenesGatitos();
+      catContainer.innerHTML = "";
+      urls.forEach(url => {
+        const img = document.createElement("img");
+        img.src = url;
+        catContainer.appendChild(img);
+      });
+      setTimeout(() => {
+        const images = catContainer.querySelectorAll("img");
+        images.forEach(img => {
+          img.style.opacity = 0;
+        });
+      }, 5000); // Espera 5 segundos antes de empezar el desvanecimiento
+    };
+
+    const responder = (text) => {
+      // Eliminar espacios extra al principio y al final del texto
+      const cleanedText = text.trim();
+
+      const msg = cleanedText.toLowerCase();
+
+      if (msg.startsWith("search") && palabrasGato.some(p => msg.includes(p))) {
+        mostrarImagenesGatitos();
+      }
+
+      if (msg === "soy thechocman") {
+        mostrarRespuesta("Hola, jefe. ;-;");
+        return;
+      }
+
+      if (["hello", "hola", "hla", "ola", "buenas tardes", "wenas tardes", "buenos días", "buenos dias", "buenos díaz", "buenos diaz", "qué tal?", "qué tal", "que tal", "que tal?"].includes(msg)) {
+        const rand = Math.random();
+        mostrarRespuesta(rand < 0.04 ? saludoOpciones[6] : saludoOpciones[Math.floor(rand * 6)]);
+        return;
+      }
+
+      if (["gracias!", "gracias", "grasias", "grax"].includes(msg)) {
+        const rand = Math.floor(Math.random() * 4);
+        mostrarRespuesta(graciasOpciones[rand]);
+        return;
+      }
+
+      if (["hola cocoai"].includes(msg)) mostrarRespuesta(`¡Hola, ${userName}! :-)`);
+      else if (["como estás", "cómo estás"].includes(msg)) mostrarRespuesta("Bien, listo para ayudarte! Qué necesitas?");
+      else if (["coño"].includes(msg)) {
+        mostrarRespuesta("Qué es eso?");
+        afterSwear = true;
+      }
+      else if (afterSwear) {
+        mostrarRespuesta("Guau!");
+        afterSwear = false;
+      }
+      else if (msg.includes("minecraft")) mostrarRespuesta("Minecraft es un juego de Notch, hecho en 2009");
+      else if (msg.includes("geometry dash")) mostrarRespuesta("Geometry dash es un juego desarrollado por Roberto Pala en 2013 durante la crisis mundial");
+      else if (msg.includes("adiós")) mostrarRespuesta(`¡Adiós, ${userName}! :-)`);
+      else if (msg.startsWith("si hago") && msg.includes(", tú haces")) {
+        const partes = msg.split(", tú haces");
+        const inputUser = partes[0].replace("si hago", "").trim();
+        const outputUser = partes[1].trim();
+        customRules[inputUser] = outputUser;
+        mostrarRespuesta("Entendido! :-)");
+      }
+      else if (msg.startsWith("me llamo")) {
+        userName = msg.replace("me llamo", "").trim();
+        mostrarRespuesta(`Ok ${userName}, lo recordaré :-)`);
+      }
+      else if (msg.includes("quién eres") || msg.includes("quien eres") || msg.includes("que eres")) {
+        mostrarRespuesta("Soy una IA con información muy limitada , desarrollada por TheChocman, un crack. ¡Me puedes preguntar cosas On y Off-Line! De ahí viene mi nombre CocoAI Off-Line :-).");
+      }
+      else if (customRules[msg]) mostrarRespuesta(customRules[msg]);
+      else mostrarRespuesta("¡No puedo hacer eso :-(! Pero puedes programarme diciendo ' Si hago (texto de usuario), tú haces (texto de usuario) ' :-)");
+    };
+
+    sendBtn.addEventListener("click", () => responder(input.value));
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") responder(input.value);
+    });
+  </script>
+</body>
+</html>
